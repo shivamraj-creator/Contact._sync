@@ -5,7 +5,7 @@ import android.provider.ContactsContract
 import android.util.Log
 
 class ContactReader(
-    private val  contentResolver: ContentResolver
+    private val contentResolver: ContentResolver?
 ) {
     companion object{
         private const val TAG = "ContactReader"
@@ -17,7 +17,7 @@ class ContactReader(
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
             ContactsContract.CommonDataKinds.Phone.NUMBER
         )
-        val  cursor = contentResolver.query(
+        val  cursor = contentResolver?.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                  projection,
             null,

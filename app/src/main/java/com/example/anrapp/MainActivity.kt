@@ -10,8 +10,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.anrapp.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    private lateinit var adapter: ContactAdapter
+
+    private lateinit var repository: ContactRepository
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -19,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         ) { isGranted ->
 
             if (isGranted) {
-                readContacts()
+                loadContacts()
             }
         }
 
@@ -28,20 +38,17 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
 
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        Thread.sleep(20000)
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main)
-        ) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { view, insets ->
 
             val systemBars =
                 insets.getInsets(
                     WindowInsetsCompat.Type.systemBars()
                 )
 
-            v.setPadding(
+            view.setPadding(
                 systemBars.left,
                 systemBars.top,
                 systemBars.right,
@@ -51,7 +58,43 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        setupRecyclerView()
+
+        val dao =
+            AppDatabase
+                .getDatabase(this)
+                .contactDao()
+
+        repository = ContactRepository(dao)
+
+        observeContacts()
+
         checkPermission()
+    }
+
+    private fun setupRecyclerView() {
+
+        adapter = ContactAdapter()
+
+        binding.rvContacts.layoutManager =
+            LinearLayoutManager(this)
+
+        binding.rvContacts.adapter =
+            adapter
+
+        binding.rvContacts.setHasFixedSize(true)
+    }
+
+    private fun observeContacts() {
+
+        lifecycleScope.launch {
+
+            repository.getContacts()
+                .collect { contacts ->
+
+                    adapter.submitList(contacts)
+                }
+        }
     }
 
     private fun checkPermission() {
@@ -63,7 +106,7 @@ class MainActivity : AppCompatActivity() {
             ) == PackageManager.PERMISSION_GRANTED
         ) {
 
-            readContacts()
+            loadContacts()
 
         } else {
 
@@ -73,15 +116,33 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun readContacts() {
+    private fun loadContacts() {
 
-        val contactReader = ContactReader(contentResolver)
+        lifecycleScope.launch {
 
-        val contacts = contactReader.getContacts()
+            val contacts =
+                ContactReader(contentResolver)
+                    .getContacts()
 
-        Log.d(
-            "MainActivity",
-            "Total Contacts = ${contacts.size}"
+            Log.d(
+                "MainActivity",
+                "Total Contacts = ${contacts.size}"
+            )
+
+            repository.saveContacts(
+                contacts.map {
+                    it.toEntity()
+                }
+            )
+        }
+    }
+
+    private fun Contact.toEntity(): ContactEntity {
+        return ContactEntity(
+            id = id,
+            name = name,
+            phoneNumber = phoneNumber
         )
+
     }
 }
