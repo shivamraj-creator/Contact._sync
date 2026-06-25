@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.anrapp"
+    namespace = "com.example.contactsync"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.anrapp"
+        applicationId = "com.example.contactsync"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -54,7 +54,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation("androidx.room:room-runtime:2.8.0")
+    implementation("androidx.room:room-ktx:2.8.0")
     ksp("androidx.room:room-compiler:2.8.0")
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
 
 }

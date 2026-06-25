@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">ANR app</string>
+    <string name="app_name">Contact Sync </string>
+    <string name="no_contacts">No contacts found</string>
 </resources>

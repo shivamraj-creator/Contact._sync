@@ -3,7 +3,7 @@ package com.example.anrapp
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.anrapp.databinding.ItemContactBinding
+import com.example.contactsync.databinding.ItemContactBinding
 
 class ContactAdapter :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>() {
@@ -41,17 +41,12 @@ class ContactAdapter :
 
         val contact = contacts[position]
 
-        holder.binding.tvName.text =
-            contact.name
+        holder.binding.tvName.text = contact.name
 
-        holder.binding.tvPhone.text =
-            contact.phoneNumber
+        holder.binding.tvPhone.text = contact.phoneNumber
 
         holder.binding.tvAvatar.text =
-            contact.name
-                .firstOrNull()
-                ?.uppercase()
-                ?: "#"
+            contact.name.firstOrNull()?.uppercase() ?: "#"
     }
 
     override fun getItemCount(): Int =
